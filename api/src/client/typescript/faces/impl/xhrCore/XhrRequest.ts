@@ -15,7 +15,7 @@
  */
 
 import {AsyncRunnable} from "../util/AsyncRunnable";
-import {Config, DQ, Stream} from "mona-dish";
+import {Config, DQ, DQ$, Stream} from "mona-dish";
 import {Implementation} from "../AjaxImpl";
 
 import {XhrFormData} from "./XhrFormData";
@@ -23,7 +23,7 @@ import {ErrorData} from "./ErrorData";
 import {EventData} from "./EventData";
 import {ExtLang} from "../util/Lang";
 import {
-    $faces,
+    $faces, $nsp,
     BEGIN,
     COMPLETE,
     CONTENT_TYPE,
@@ -31,10 +31,10 @@ import {
     CTX_PARAM_REQ_PASS_THR,
     ERROR,
     HEAD_FACES_REQ,
-    MALFORMEDXML,
+    MALFORMEDXML, NAMED_VIEWROOT,
     NO_TIMEOUT,
     ON_ERROR,
-    ON_EVENT, P_EXECUTE, P_PARTIAL_SOURCE,
+    ON_EVENT, P_EXECUTE, P_PARTIAL_SOURCE, P_VIEWSTATE, NAMING_CONTAINER_ID,
     REQ_ACCEPT,
     REQ_TYPE_GET,
     REQ_TYPE_POST, SOURCE,
@@ -43,9 +43,15 @@ import {
     URL_ENCODED,
     VAL_AJAX
 } from "../core/Const";
-import {resolveFinalUrl, resolveHandlerFunc} from "./RequestDataResolver";
+import {
+    resolveFinalUrl,
+    resolveHandlerFunc,
+    resolveViewRootId,
+    resoveNamingContainerMapper
+} from "./RequestDataResolver";
 import failSaveExecute = ExtLang.failSaveExecute;
 import {ExtConfig} from "../util/ExtDomQuery";
+import {ResponseProcessor} from "./ResponseProcessor";
 
 /**
  * Faces XHR Request Wrapper
@@ -115,10 +121,11 @@ export class XhrRequest implements AsyncRunnable<XMLHttpRequest> {
         let executesArr = () => {
             return this.requestContext.getIf(CTX_PARAM_REQ_PASS_THR, P_EXECUTE).get("none").value.split(/\s+/gi);
         };
-        try {
 
+        try {
             let formElement = this.sourceForm.getAsElem(0).value;
             let viewState = $faces().getViewState(formElement);
+
             // encoded we need to decode
             // We generated a base representation of the current form
             // in case someone has overloaded the viewState with additional decorators we merge
@@ -128,7 +135,7 @@ export class XhrRequest implements AsyncRunnable<XMLHttpRequest> {
             // the partialIdsArray arr is almost deprecated legacy code where we allowed to send a separate list of partial
             // ids for reduced load and server processing, this will be removed soon, we can handle the same via execute
             // anyway TODO remove the partial ids array
-            let formData: XhrFormData = new XhrFormData(this.sourceForm, viewState, executesArr(), this.partialIdsArray);
+            let formData: XhrFormData = new XhrFormData(this.sourceForm, resoveNamingContainerMapper(this.internalContext), viewState, executesArr(), this.partialIdsArray);
 
             this.contentType = formData.isMultipartRequest ? "undefined" : this.contentType;
 
@@ -178,8 +185,9 @@ export class XhrRequest implements AsyncRunnable<XMLHttpRequest> {
             // setting, they accept headers automatically
             ignoreErr(() => xhrObject.setRequestHeader(REQ_ACCEPT, STD_ACCEPT));
 
-            this.sendEvent(BEGIN);
 
+
+            this.sendEvent(BEGIN);
             this.sendRequest(formData);
 
         } catch (e) {
@@ -373,5 +381,6 @@ export class XhrRequest implements AsyncRunnable<XMLHttpRequest> {
         let eventHandler = resolveHandlerFunc(this.requestContext, this.responseContext, ON_ERROR);
         Implementation.sendError(errorData, eventHandler);
     }
+
 
 }

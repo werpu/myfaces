@@ -23,7 +23,7 @@ import {
     DELAY_NONE,
     EMPTY_FUNC,
     EMPTY_STR,
-    ENCODED_URL,
+    ENCODED_URL, NAMED_VIEWROOT, NAMING_CONTAINER_ID,
     P_VIEWSTATE,
     REQ_TYPE_GET,
     REQ_TYPE_POST
@@ -50,6 +50,7 @@ import {Assertions} from "../util/Assertions";
  * @param funcName
  */
 export function resolveHandlerFunc(requestContext: Config, responseContext: Config, funcName: string) {
+    responseContext = responseContext || new Config({});
     return responseContext.getIf(funcName)
         .orElseLazy(() =>requestContext.getIf(funcName).value)
         .orElse(EMPTY_FUNC).value;
@@ -87,6 +88,32 @@ export function resolveViewId(form: DQ): string {
     // myfaces specific, we in non portlet environments prepend the viewId
     // even without being in a naming container, the other components ignore that
     return form.id.value.indexOf(viewStateViewId) === 0 ? viewStateViewId : "";
+}
+
+export function resolveViewRootId(form: DQ): string {
+    const viewState = form.querySelectorAll(`input[type='hidden'][name*='${$nsp(P_VIEWSTATE)}']`).attr("name").orElse("").value;
+    const divider = $faces().separatorchar;
+    const viewId = viewState.split(divider, 2)[0];
+    //different to the identifier the form id is never prepended to the viewstate
+    return viewId.indexOf($nsp(P_VIEWSTATE)) === -1 ? viewId : "";
+}
+
+/**
+ * as per jsdoc before the request it must be ensured that every post argument
+ * is prefixed with the naming container id (there is an exception in mojarra with
+ * the element=element param, which we have to follow here as well.
+ * (inputs are prefixed by name anyway normally this only affects our standard parameters)
+ * @private
+ */
+export function resoveNamingContainerMapper(internalContext: Config): (key: string, value: any) => [string, any] {
+    const isNamedViewRoot = internalContext.getIf(NAMED_VIEWROOT).isPresent();
+    if(!isNamedViewRoot) {
+        return;
+    }
+    const partialId = internalContext.getIf(NAMING_CONTAINER_ID).value;
+    const SEP = $faces().separatorchar;
+    const prefix = partialId + SEP;
+    return (key: string, value: any) => (key.indexOf(prefix) == 0) ? [key, value] : [prefix + key, value];
 }
 
 export function resolveTimeout(options: Config): number {
