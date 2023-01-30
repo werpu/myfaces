@@ -129,7 +129,7 @@ _MF_SINGLTN(_PFX_XHR + "_AjaxResponse", _MF_OBJECT, /** @lends myfaces._impl.xhr
             mfInternal[NAME_CONT_ID] = mfInternal.namingModeId = (partials.id || "");
             var rawNamingContainerId = mfInternal[NAME_CONT_ID];
             if(rawNamingContainerId.length) {
-                mfInternal[NAME_CONT_ID] = rawNamingContainerId + faces.separatorchar;
+                mfInternal[NAME_CONT_ID] = rawNamingContainerId + jsf.separatorchar;
             }
 
 
