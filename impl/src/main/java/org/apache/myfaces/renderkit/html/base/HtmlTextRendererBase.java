@@ -18,6 +18,7 @@
  */
 package org.apache.myfaces.renderkit.html.base;
 
+
 import org.apache.myfaces.renderkit.html.util.HtmlRendererUtils;
 import org.apache.myfaces.renderkit.html.util.ClientBehaviorRendererUtils;
 import org.apache.myfaces.renderkit.html.util.CommonPropertyUtils;
@@ -44,6 +45,7 @@ import org.apache.myfaces.renderkit.html.util.JSFAttr;
 import org.apache.myfaces.renderkit.RendererUtils;
 import org.apache.myfaces.renderkit.html.util.ResourceUtils;
 import org.apache.myfaces.renderkit.html.util.HTML;
+import org.apache.myfaces.renderkit.html.ParamsNamingContainerResolver;
 
 public class HtmlTextRendererBase
         extends HtmlRenderer
@@ -229,11 +231,11 @@ public class HtmlTextRendererBase
             }
             if (behaviors.isEmpty() && isCommonPropertiesOptimizationEnabled(facesContext))
             {
-                CommonPropertyUtils.renderChangeEventProperty(writer, 
+                CommonPropertyUtils.renderChangeEventProperty(writer,
                         commonPropertiesMarked, component);
-                CommonPropertyUtils.renderEventProperties(writer, 
+                CommonPropertyUtils.renderEventProperties(writer,
                         commonPropertiesMarked, component);
-                CommonPropertyUtils.renderFieldEventPropertiesWithoutOnchange(writer, 
+                CommonPropertyUtils.renderFieldEventPropertiesWithoutOnchange(writer,
                         commonPropertiesMarked, component);
             }
             else
@@ -242,7 +244,7 @@ public class HtmlTextRendererBase
                 if (isCommonEventsOptimizationEnabled(facesContext))
                 {
                     Long commonEventsMarked = CommonEventUtils.getCommonEventsMarked(component);
-                    CommonEventUtils.renderBehaviorizedEventHandlers(facesContext, writer, 
+                    CommonEventUtils.renderBehaviorizedEventHandlers(facesContext, writer,
                             commonPropertiesMarked, commonEventsMarked, component, behaviors);
                     CommonEventUtils.renderBehaviorizedFieldEventHandlersWithoutOnchange(
                         facesContext, writer, commonPropertiesMarked, commonEventsMarked, component, behaviors);
@@ -256,7 +258,7 @@ public class HtmlTextRendererBase
             }
             if (isCommonPropertiesOptimizationEnabled(facesContext))
             {
-                CommonPropertyUtils.renderInputPassthroughPropertiesWithoutDisabledAndEvents(writer, 
+                CommonPropertyUtils.renderInputPassthroughPropertiesWithoutDisabledAndEvents(writer,
                         commonPropertiesMarked, component);
             }
             else
@@ -269,7 +271,7 @@ public class HtmlTextRendererBase
         {
             if (isCommonPropertiesOptimizationEnabled(facesContext))
             {
-                CommonPropertyUtils.renderInputPassthroughPropertiesWithoutDisabled(writer, 
+                CommonPropertyUtils.renderInputPassthroughPropertiesWithoutDisabled(writer,
                         CommonPropertyUtils.getCommonPropertiesMarked(component), component);
             }
             else
@@ -385,7 +387,7 @@ public class HtmlTextRendererBase
             if (maxlength >= 0)
             {
                 String clientId = input.getClientId(facesContext);
-                String value = facesContext.getExternalContext().getRequestParameterMap().get(clientId);
+                String value = new ParamsNamingContainerResolver(facesContext).get(clientId);
                 if (value != null && value.length() > maxlength)
                 {
                     return false;

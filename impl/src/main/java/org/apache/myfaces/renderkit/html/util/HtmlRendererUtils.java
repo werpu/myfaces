@@ -62,6 +62,7 @@ import org.apache.myfaces.renderkit.ClientBehaviorEvents;
 import org.apache.myfaces.renderkit.RendererUtils;
 import org.apache.myfaces.component.visit.MyFacesVisitHints;
 import org.apache.myfaces.core.api.shared.ComponentUtils;
+import org.apache.myfaces.renderkit.html.ParamsNamingContainerResolver;
 
 public final class HtmlRendererUtils
 {
@@ -99,7 +100,7 @@ public final class HtmlRendererUtils
                     + component.getClientId(facesContext)
                     + " is not an EditableValueHolder");
         }
-        Map paramMap = facesContext.getExternalContext().getRequestParameterMap();
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         String clientId = component.getClientId(facesContext);
         if (isDisabledOrReadOnly(component))
         {
@@ -134,7 +135,7 @@ public final class HtmlRendererUtils
         {
             return;
         }
-        Map paramMap = facesContext.getExternalContext().getRequestParameterMap();
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         String clientId = component.getClientId(facesContext);
         if (paramMap.containsKey(clientId))
         {
@@ -240,8 +241,8 @@ public final class HtmlRendererUtils
         {
             return;
         }
-        
-        Map paramMap = facesContext.getExternalContext().getRequestParameterMap();
+
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         if (component instanceof UISelectOne)
         {
             String group = ((UISelectOne) component).getGroup();
@@ -575,7 +576,7 @@ public final class HtmlRendererUtils
             {
                 String itemStrValue = RendererUtils.getConvertedStringValue(context, component, converter,selectItem);
                 boolean selected = lookupSet.contains(itemStrValue); 
-                //TODO/FIX: we always compare the String vales, better fill lookupSet with Strings 
+                //TODO/FIX: we always compare the String vales, better fill lookupSet with Strings
                 //only when useSubmittedValue==true, else use the real item value Objects
 
                 // IF the hideNoSelectionOption attribute of the component is true
@@ -631,7 +632,7 @@ public final class HtmlRendererUtils
 
                 boolean escape = RendererUtils.getBooleanAttribute(component, JSFAttr.ESCAPE_ATTR, false);
                 //default is to escape
-                //In JSF 1.2, when a SelectItem is created by default 
+                //In JSF 1.2, when a SelectItem is created by default
                 //selectItem.isEscape() returns true (this property
                 //is not available on JSF 1.1).
                 //so, if we found a escape property on the component
@@ -995,7 +996,7 @@ public final class HtmlRendererUtils
 
                 if (lookupSet.contains(itemStrValue))
                 {
-                    //TODO/FIX: we always compare the String vales, better fill lookupSet with Strings 
+                    //TODO/FIX: we always compare the String vales, better fill lookupSet with Strings
                     //only when useSubmittedValue==true, else use the real item value Objects
                     if (!isSelectOne)
                     {
@@ -1220,7 +1221,7 @@ public final class HtmlRendererUtils
     public static boolean isPartialOrBehaviorSubmit(FacesContext facesContext,
             String clientId)
     {
-        Map<String, String> params = facesContext.getExternalContext().getRequestParameterMap();
+        ParamsNamingContainerResolver params = new ParamsNamingContainerResolver(facesContext);
         String sourceId = params.get(ClientBehaviorContext.BEHAVIOR_SOURCE_PARAM_NAME);
         if (sourceId == null || !sourceId.equals(clientId))
         {

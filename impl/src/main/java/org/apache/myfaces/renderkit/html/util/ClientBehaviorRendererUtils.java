@@ -32,6 +32,7 @@ import javax.faces.component.behavior.ClientBehaviorHolder;
 import javax.faces.context.FacesContext;
 import org.apache.myfaces.config.MyfacesConfig;
 import org.apache.myfaces.renderkit.RendererUtils;
+import org.apache.myfaces.renderkit.html.ParamsNamingContainerResolver;
 import org.apache.myfaces.util.lang.StringUtils;
 
 public class ClientBehaviorRendererUtils
@@ -47,7 +48,7 @@ public class ClientBehaviorRendererUtils
         Map<String, List<ClientBehavior>> clientBehaviors = clientBehaviorHolder.getClientBehaviors();
         if (clientBehaviors != null && !clientBehaviors.isEmpty())
         {
-            Map<String, String> paramMap = facesContext.getExternalContext().getRequestParameterMap();
+            ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
             String behaviorEventName = paramMap.get(ClientBehaviorContext.BEHAVIOR_EVENT_PARAM_NAME);
             if (behaviorEventName != null)
             {
@@ -178,7 +179,7 @@ public class ClientBehaviorRendererUtils
             for (int i = 0, size = attachedEventBehaviors.size(); i < size; i++)
             {
                 ClientBehavior clientBehavior = attachedEventBehaviors.get(i);
-                submitting = appendClientBehaviourScript(target, context, 
+                submitting = appendClientBehaviourScript(target, context,
                         submitting, i < (size -1), clientBehavior, config);   
             }
         }
@@ -188,7 +189,7 @@ public class ClientBehaviorRendererUtils
             while (clientIterator.hasNext())
             {
                 ClientBehavior clientBehavior = clientIterator.next();
-                submitting = appendClientBehaviourScript(target, context, submitting, 
+                submitting = appendClientBehaviourScript(target, context, submitting,
                         clientIterator.hasNext(), clientBehavior, config);
             }
         }
@@ -196,7 +197,7 @@ public class ClientBehaviorRendererUtils
         return submitting;
     }
 
-    private static boolean appendClientBehaviourScript(JavascriptContext target, ClientBehaviorContext context, 
+    private static boolean appendClientBehaviourScript(JavascriptContext target, ClientBehaviorContext context,
             boolean submitting, boolean hasNext, ClientBehavior clientBehavior, MyfacesConfig config)
     {
         String script = clientBehavior.getScript(context);
@@ -270,7 +271,7 @@ public class ClientBehaviorRendererUtils
         int size = functions.size();
         if (size > 0)
         {
-            //according to the spec jsf.util.chain has to be used to build up the 
+            //according to the spec jsf.util.chain has to be used to build up the
             //behavior and scripts
             if (sourceId == null)
             {
@@ -374,7 +375,7 @@ public class ClientBehaviorRendererUtils
             {
                 chainContext.append("return ");
             }
-            //according to the spec jsf.util.chain has to be used to build up the 
+            //according to the spec jsf.util.chain has to be used to build up the
             //behavior and scripts
             if (sourceId == null)
             {
