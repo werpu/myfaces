@@ -338,7 +338,7 @@ public class HtmlTextRendererBase
             if (maxlength >= 0)
             {
                 String clientId = input.getClientId(facesContext);
-                String value = facesContext.getExternalContext().getRequestParameterMap().get(clientId);
+                String value = new ParamsNamingContainerResolver(facesContext).get(clientId);
                 if (value != null && value.length() > maxlength)
                 {
                     return false;

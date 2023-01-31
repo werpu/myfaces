@@ -200,8 +200,7 @@ public final class HtmlJavaScriptUtils
                 && oldViewId.equals(facesContext.getViewRoot().getViewId()))
         {
             //ok, we stayed on the same page, so let's scroll it to the former place
-            String scrolling = (String) externalContext
-                    .getRequestParameterMap().get(AUTO_SCROLL_PARAM);
+            String scrolling = (String) new ParamsNamingContainerResolver(facesContext).get(AUTO_SCROLL_PARAM);
             if (scrolling != null && scrolling.length() > 0)
             {
                 double x = 0;

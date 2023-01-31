@@ -36,9 +36,12 @@ import org.apache.myfaces.buildtools.maven2.plugin.builder.annotation.JSFWebConf
 import org.apache.myfaces.renderkit.MyfacesResponseStateManager;
 import org.apache.myfaces.shared.config.MyfacesConfig;
 import org.apache.myfaces.shared.renderkit.html.HTML;
+import org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver;
 import org.apache.myfaces.shared.util.WebConfigParamUtils;
 import org.apache.myfaces.spi.StateCacheProvider;
 import org.apache.myfaces.spi.StateCacheProviderFactory;
+
+import static org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver.resolveNamingContainerPrefix;
 
 /**
  * @author Manfred Geiler (latest modification by $Author$)
@@ -103,7 +106,8 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
             responseWriter.startElement(HTML.INPUT_ELEM, null);
             responseWriter.writeAttribute(HTML.TYPE_ATTR, HTML.INPUT_TYPE_HIDDEN, null);
             responseWriter.writeAttribute(HTML.ID_ATTR, generateUpdateClientWindowId(facesContext), null);
-            responseWriter.writeAttribute(HTML.NAME_ATTR, ResponseStateManager.CLIENT_WINDOW_PARAM, null);
+            responseWriter.writeAttribute(HTML.NAME_ATTR, resolveNamingContainerPrefix(facesContext) +
+                        ResponseStateManager.CLIENT_WINDOW_PARAM, null);
             responseWriter.writeAttribute(HTML.VALUE_ATTR, clientWindow.getId(), null);
             responseWriter.endElement(HTML.INPUT_ELEM);
         }
@@ -134,7 +138,10 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
 
         responseWriter.startElement(HTML.INPUT_ELEM, null);
         responseWriter.writeAttribute(HTML.TYPE_ATTR, HTML.INPUT_TYPE_HIDDEN, null);
-        responseWriter.writeAttribute(HTML.NAME_ATTR, STANDARD_STATE_SAVING_PARAM, null);
+
+        responseWriter.writeAttribute(HTML.NAME_ATTR, resolveNamingContainerPrefix(facesContext) +
+                STANDARD_STATE_SAVING_PARAM, null);
+
         if (myfacesConfig.isRenderViewStateId())
         {
             // responseWriter.writeAttribute(HTML.ID_ATTR, STANDARD_STATE_SAVING_PARAM, null);
@@ -188,8 +195,8 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
      */
     private Object getSavedState(FacesContext facesContext)
     {
-        Object encodedState = 
-            facesContext.getExternalContext().getRequestParameterMap().get(STANDARD_STATE_SAVING_PARAM);
+        Object encodedState = new ParamsNamingContainerResolver(facesContext)
+                        .get(STANDARD_STATE_SAVING_PARAM);
         if(encodedState==null || (((String) encodedState).length() == 0))
         {
             return null;
@@ -209,7 +216,7 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
     @Override
     public boolean isPostback(FacesContext context)
     {
-        return context.getExternalContext().getRequestParameterMap().containsKey(ResponseStateManager.VIEW_STATE_PARAM);
+        return ParamsNamingContainerResolver.isPostBack(context);
     }
 
     @Override
@@ -238,9 +245,8 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
     {
         if (context.isPostback())
         {
-            String encodedState = 
-                context.getExternalContext().getRequestParameterMap().get(STANDARD_STATE_SAVING_PARAM);
-            if(encodedState==null || (((String) encodedState).length() == 0))
+            String encodedState =  new ParamsNamingContainerResolver(context).get(STANDARD_STATE_SAVING_PARAM);
+            if (encodedState == null || ((String) encodedState).length() == 0)
             {
                 return false;
             }
@@ -310,7 +316,7 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
             count = Integer.valueOf(0);
         }
         count += 1;
-        id = facesContext.getViewRoot().getContainerClientId(facesContext) + 
+        id = facesContext.getViewRoot().getContainerClientId(facesContext) +
             separator + ResponseStateManager.CLIENT_WINDOW_PARAM + separator + count;
         facesContext.getAttributes().put(CLIENT_WINDOW_COUNTER, count);
         return id;
@@ -329,7 +335,7 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
         // UNIQUE_PER_VIEW_NUMBER aim for portlet case. In that case it is possible to have
         // multiple sections for update. In servlet case there is only one update section per
         // ajax request.
-        
+
         String id;
         char separator = facesContext.getNamingContainerSeparatorChar();
         Integer count = (Integer) facesContext.getAttributes().get(VIEW_STATE_COUNTER);
@@ -338,7 +344,7 @@ public class HtmlResponseStateManager extends MyfacesResponseStateManager
             count = Integer.valueOf(0);
         }
         count += 1;
-        id = facesContext.getViewRoot().getContainerClientId(facesContext) + 
+        id = facesContext.getViewRoot().getContainerClientId(facesContext) +
             separator + ResponseStateManager.VIEW_STATE_PARAM + separator + count;
         facesContext.getAttributes().put(VIEW_STATE_COUNTER, count);
         return id;

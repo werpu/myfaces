@@ -18,6 +18,8 @@
  */
 package org.apache.myfaces.lifecycle;
 
+import org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.faces.context.FacesContext;
@@ -62,14 +64,12 @@ public class UrlClientWindow extends ClientWindow
     {
         //1. If it comes as parameter, it takes precedence over any other choice, because
         //   no browser is capable to do a POST and create a new window at the same time.
-        String windowId = context.getExternalContext().getRequestParameterMap().get(
-                ResponseStateManager.CLIENT_WINDOW_PARAM);
+        String windowId = new ParamsNamingContainerResolver(context).get(ResponseStateManager.CLIENT_WINDOW_PARAM);
         if (windowId != null)
         {
             return windowId;
         }
-        windowId = context.getExternalContext().getRequestParameterMap().get(
-                ResponseStateManager.CLIENT_WINDOW_URL_PARAM);
+        windowId = new ParamsNamingContainerResolver(context).get(ResponseStateManager.CLIENT_WINDOW_URL_PARAM);
         if (windowId != null)
         {
             return windowId;

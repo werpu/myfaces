@@ -35,6 +35,7 @@ import org.apache.myfaces.buildtools.maven2.plugin.builder.annotation.JSFCompone
 import org.apache.myfaces.buildtools.maven2.plugin.builder.annotation.JSFJspProperty;
 import org.apache.myfaces.buildtools.maven2.plugin.builder.annotation.JSFProperty;
 import org.apache.myfaces.renderkit.ErrorPageWriter;
+import org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver;
 import org.apache.myfaces.view.facelets.util.FastWriter;
 
 /**
@@ -182,7 +183,7 @@ public final class UIDebug extends UIComponentBase
 
     public static boolean debugRequest(FacesContext faces)
     {
-        String id = (String) faces.getExternalContext().getRequestParameterMap().get(KEY);
+        String id = (String) new ParamsNamingContainerResolver(faces).get(KEY);
         if (id != null)
         {
             Object resp = faces.getExternalContext().getResponse();

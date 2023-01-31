@@ -95,13 +95,13 @@ public class HtmlButtonRendererBase
     private static boolean isSubmitted(FacesContext facesContext, UIComponent uiComponent)
     {
         String clientId = uiComponent.getClientId(facesContext);
-        Map paramMap = facesContext.getExternalContext().getRequestParameterMap();
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         FormInfo formInfo = _ComponentUtils.findNestingForm(uiComponent, facesContext);
         String hiddenLink = null;
          
         if (formInfo != null)
         {
-            hiddenLink = (String) facesContext.getExternalContext().getRequestParameterMap().get(
+            hiddenLink = (String) new ParamsNamingContainerResolver(facesContext).get(
                 HtmlRendererUtils.getHiddenCommandLinkFieldName(formInfo, facesContext));
         }
         return paramMap.containsKey(clientId) || paramMap.containsKey(clientId + IMAGE_BUTTON_SUFFIX_X) 

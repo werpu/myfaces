@@ -83,7 +83,7 @@ public abstract class HtmlLinkRendererBase
             boolean activateActionEvent = false;
             if (formInfo != null && !disabled)
             {
-                String reqValue = (String) facesContext.getExternalContext().getRequestParameterMap().get(
+                String reqValue = (String) new ParamsNamingContainerResolver(facesContext).get(
                         HtmlRendererUtils.getHiddenCommandLinkFieldName(formInfo, facesContext));
                 activateActionEvent = reqValue != null && reqValue.equals(clientId)
                     || HtmlRendererUtils.isPartialOrBehaviorSubmit(facesContext, clientId);

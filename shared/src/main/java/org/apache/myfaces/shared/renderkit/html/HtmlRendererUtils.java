@@ -119,8 +119,7 @@ public final class HtmlRendererUtils
                     + component.getClientId(facesContext)
                     + " is not an EditableValueHolder");
         }
-        Map paramMap = facesContext.getExternalContext()
-                .getRequestParameterMap();
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         String clientId = component.getClientId(facesContext);
         if (isDisabledOrReadOnly(component))
         {
@@ -156,8 +155,7 @@ public final class HtmlRendererUtils
         {
             return;
         }
-        Map paramMap = facesContext.getExternalContext()
-                .getRequestParameterMap();
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         String clientId = component.getClientId(facesContext);
         if (paramMap.containsKey(clientId))
         {
@@ -261,8 +259,8 @@ public final class HtmlRendererUtils
         {
             return;
         }
-        
-        Map paramMap = facesContext.getExternalContext().getRequestParameterMap();
+
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         if (component instanceof UISelectOne)
         {
             String group = ((UISelectOne) component).getGroup();
@@ -388,8 +386,7 @@ public final class HtmlRendererUtils
                     .getClientBehaviors();
             if (clientBehaviors != null && !clientBehaviors.isEmpty())
             {
-                Map<String, String> paramMap = facesContext
-                        .getExternalContext().getRequestParameterMap();
+                ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
                 String behaviorEventName = paramMap
                         .get(ClientBehaviorContext.BEHAVIOR_EVENT_PARAM_NAME);
                 if (behaviorEventName != null)
@@ -1685,7 +1682,7 @@ public final class HtmlRendererUtils
     public static boolean isPartialOrBehaviorSubmit(FacesContext facesContext,
             String clientId)
     {
-        Map<String, String> params = facesContext.getExternalContext().getRequestParameterMap();
+        ParamsNamingContainerResolver params = new ParamsNamingContainerResolver(facesContext);
         String sourceId = params.get(ClientBehaviorContext.BEHAVIOR_SOURCE_PARAM_NAME);
         if (sourceId == null || !sourceId.equals(clientId))
         {

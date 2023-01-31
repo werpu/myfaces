@@ -55,6 +55,7 @@ import org.apache.myfaces.context.PartialResponseWriterImpl;
 import org.apache.myfaces.context.RequestViewContext;
 import org.apache.myfaces.renderkit.html.HtmlResponseStateManager;
 import org.apache.myfaces.shared.renderkit.JSFAttr;
+import org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver;
 import org.apache.myfaces.shared.util.StringUtils;
 
 public class PartialViewContextImpl extends PartialViewContext
@@ -202,7 +203,7 @@ public class PartialViewContextImpl extends PartialViewContext
     {
         if (_iframeRequest == null)
         {
-            _iframeRequest = _facesContext.getExternalContext().getRequestParameterMap().containsKey(PARTIAL_IFRAME);
+            _iframeRequest = new ParamsNamingContainerResolver(_facesContext).containsKey(PARTIAL_IFRAME);
         }
         return _iframeRequest;
     }
@@ -231,8 +232,7 @@ public class PartialViewContextImpl extends PartialViewContext
 
         if (_executeClientIds == null)
         {
-            String executeMode = _facesContext.getExternalContext().
-                    getRequestParameterMap().get(
+            String executeMode = new ParamsNamingContainerResolver(_facesContext).get(
                     PartialViewContext.PARTIAL_EXECUTE_PARAM_NAME);
 
             if (executeMode != null && !"".equals(executeMode) &&
@@ -256,7 +256,7 @@ public class PartialViewContextImpl extends PartialViewContext
                 // execute ids if missing (otherwise, we'd never execute an action associated
                 // with, e.g., a button).
 
-                String source = _facesContext.getExternalContext().getRequestParameterMap().get
+                String source = new ParamsNamingContainerResolver(_facesContext).get
                         (ClientBehaviorContext.BEHAVIOR_SOURCE_PARAM_NAME);
 
                 if (source != null)
@@ -737,7 +737,7 @@ public class PartialViewContextImpl extends PartialViewContext
     {
         if (_resetValues == null)
         {
-            String value = _facesContext.getExternalContext().getRequestParameterMap().
+            String value = new ParamsNamingContainerResolver(_facesContext).
                 get(RESET_VALUES_PARAM_NAME);
             _resetValues = "true".equals(value);
         }

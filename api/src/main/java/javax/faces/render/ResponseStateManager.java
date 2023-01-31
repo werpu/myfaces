@@ -22,6 +22,8 @@ import javax.faces.application.StateManager;
 import javax.faces.application.StateManager.SerializedView;
 import javax.faces.context.FacesContext;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * see Javadoc of <a href="http://java.sun.com/javaee/javaserverfaces/1.2/docs/api/index.html">JSF Specification</a>
@@ -125,7 +127,13 @@ public abstract class ResponseStateManager
      */
     public boolean isPostback(FacesContext context)
     {
-        return context.getExternalContext().getRequestParameterMap().containsKey(ResponseStateManager.VIEW_STATE_PARAM);
+
+        Map<String, String> requestParameterMap = context.getExternalContext()
+                .getRequestParameterMap();
+        // we do not have a uiViewRoot in some calls at the call moment
+        // hence we have to do a pattern match
+        return requestParameterMap.containsKey(ResponseStateManager.VIEW_STATE_PARAM) ||
+               searchForNamingContainerViewState(context, requestParameterMap.keySet());
     }
 
     /**
@@ -146,6 +154,20 @@ public abstract class ResponseStateManager
      */
     public boolean isStateless(FacesContext context, String viewId)
     {
+        return false;
+    }
+
+    private static boolean searchForNamingContainerViewState(FacesContext context, Set<String> keys)
+    {
+        final String searchPattern = context.getNamingContainerSeparatorChar() + ResponseStateManager.VIEW_STATE_PARAM;
+
+        for(String key: keys)
+        {
+            if(key.contains(searchPattern))
+            {
+                return true;
+            }
+        }
         return false;
     }
 }

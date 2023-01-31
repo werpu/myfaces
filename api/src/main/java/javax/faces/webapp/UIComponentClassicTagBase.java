@@ -1332,8 +1332,13 @@ public abstract class UIComponentClassicTagBase extends UIComponentTagBase imple
 
     private boolean isPostBack(FacesContext facesContext)
     {
-        return facesContext.getExternalContext().getRequestParameterMap().containsKey(
-            ResponseStateManager.VIEW_STATE_PARAM);
+
+        Map<String, String> requestParameterMap = facesContext.getExternalContext()
+                .getRequestParameterMap();
+        // we do not have a uiViewRoot in some calls at the call moment
+        // hence we have to do a pattern match
+        return requestParameterMap.containsKey(ResponseStateManager.VIEW_STATE_PARAM) ||
+                searchForNamingContainerViewState(facesContext, requestParameterMap.keySet());
     }
 
     /**
@@ -1362,5 +1367,19 @@ public abstract class UIComponentClassicTagBase extends UIComponentTagBase imple
     public JspWriter getPreviousOut()
     {
         return bodyContent.getEnclosingWriter();
+    }
+
+    private static boolean searchForNamingContainerViewState(FacesContext context, Set<String> keys)
+    {
+        final String searchPattern = context.getNamingContainerSeparatorChar() + ResponseStateManager.VIEW_STATE_PARAM;
+
+        for(String key: keys)
+        {
+            if(key.contains(searchPattern))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

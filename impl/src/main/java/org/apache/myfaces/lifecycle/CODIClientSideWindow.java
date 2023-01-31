@@ -18,6 +18,8 @@
  */
 package org.apache.myfaces.lifecycle;
 
+import org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -132,16 +134,16 @@ public class CODIClientSideWindow extends ClientWindow
             return;
         }
         
-        ExternalContext externalContext = facesContext.getExternalContext();
 
-        if (isNoscriptRequest(externalContext))
+
+        if (isNoscriptRequest(facesContext))
         {
             // the client has JavaScript disabled
             clientConfig.setJavaScriptEnabled(false);
             return;
         }
 
-        String windowId = getWindowIdFromCookie(externalContext);
+        String windowId = getWindowIdFromCookie(facesContext);
         if (windowId == null)
         {
             // GET request without windowId - send windowhandlerfilter.html to get the windowId
@@ -177,7 +179,7 @@ public class CODIClientSideWindow extends ClientWindow
     {
         //1. If it comes as parameter, it takes precedence over any other choice, because
         //   no browser is capable to do a POST and create a new window at the same time.
-        String windowId = context.getExternalContext().getRequestParameterMap().get(
+        String windowId = new ParamsNamingContainerResolver(context).get(
                 ResponseStateManager.CLIENT_WINDOW_PARAM);
         if (windowId != null)
         {
@@ -193,9 +195,9 @@ public class CODIClientSideWindow extends ClientWindow
         return !facesContext.isPostback() && clientConfig.isClientSideWindowHandlerRequest(facesContext);
     }
 
-    private boolean isNoscriptRequest(ExternalContext externalContext)
+    private boolean isNoscriptRequest(FacesContext facesContext)
     {
-        String noscript = externalContext.getRequestParameterMap().get(NOSCRIPT_PARAMETER);
+        String noscript = new ParamsNamingContainerResolver(facesContext).get(NOSCRIPT_PARAMETER);
 
         return (noscript != null && "true".equals(noscript));
     }
@@ -385,10 +387,11 @@ public class CODIClientSideWindow extends ClientWindow
         return windowId;
     }
     
-    private String getWindowIdFromCookie(ExternalContext externalContext)
+    private String getWindowIdFromCookie(FacesContext facesContext)
     {
-        String cookieName = WINDOW_ID_COOKIE_PREFIX + getRequestToken(externalContext);
-        Cookie cookie = (Cookie) externalContext.getRequestCookieMap().get(cookieName);
+        String cookieName = WINDOW_ID_COOKIE_PREFIX + getRequestToken(facesContext);
+        Cookie cookie = (Cookie) facesContext.getExternalContext()
+                .getRequestCookieMap().get(cookieName);
 
         if (cookie != null)
         {
@@ -403,9 +406,10 @@ public class CODIClientSideWindow extends ClientWindow
         return null;
     }
 
-    private String getRequestToken(ExternalContext externalContext)
+    private String getRequestToken(FacesContext facesContext)
     {
-        String requestToken = externalContext.getRequestParameterMap().get(CODI_REQUEST_TOKEN);
+        ExternalContext externalContext = facesContext.getExternalContext();
+        String requestToken = new ParamsNamingContainerResolver(facesContext).get(CODI_REQUEST_TOKEN);
         if (requestToken != null)
         {
             return requestToken;

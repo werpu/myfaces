@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
 import javax.faces.component.UIComponent;
@@ -44,6 +43,7 @@ import org.apache.myfaces.shared.renderkit.RendererUtils;
 import org.apache.myfaces.shared.renderkit.html.HTML;
 import org.apache.myfaces.shared.renderkit.html.HtmlRenderer;
 import org.apache.myfaces.shared.renderkit.html.HtmlRendererUtils;
+import org.apache.myfaces.shared.renderkit.html.ParamsNamingContainerResolver;
 import org.apache.myfaces.shared.renderkit.html.util.FormInfo;
 import org.apache.myfaces.shared.renderkit.html.util.JavascriptUtils;
 import org.apache.myfaces.shared.renderkit.html.util.ResourceUtils;
@@ -158,8 +158,8 @@ public class HtmlCommandScriptRenderer extends HtmlRenderer
         {
             return;
         }
-        
-        Map<String, String> paramMap = facesContext.getExternalContext().getRequestParameterMap();
+
+        ParamsNamingContainerResolver paramMap = new ParamsNamingContainerResolver(facesContext);
         String behaviorEventName = paramMap.get(ClientBehaviorContext.BEHAVIOR_EVENT_PARAM_NAME);
         if (behaviorEventName != null)
         {
@@ -183,7 +183,7 @@ public class HtmlCommandScriptRenderer extends HtmlRenderer
                 boolean activateActionEvent = false;
                 if (formInfo != null && !disabled)
                 {
-                    String reqValue = (String) facesContext.getExternalContext().getRequestParameterMap().get(
+                    String reqValue = (String) new ParamsNamingContainerResolver(facesContext).get(
                             HtmlRendererUtils.getHiddenCommandLinkFieldName(formInfo, facesContext));
                     activateActionEvent = reqValue != null && reqValue.equals(clientId)
                         || HtmlRendererUtils.isPartialOrBehaviorSubmit(facesContext, clientId);
