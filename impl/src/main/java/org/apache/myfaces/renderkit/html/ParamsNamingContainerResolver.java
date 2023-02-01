@@ -97,16 +97,15 @@ public class ParamsNamingContainerResolver
             {
                 return "";
             }
-            // TODO please optimize this code, we probably can store the data below on request level
-            // it is static per request!
 
-            //we have a prefixed viewstate
+            // there might be some optimization potential by caching the result of this operation
+            char sep = facesContext.getNamingContainerSeparatorChar();
+            final String filterKey = sep + ResponseStateManager.VIEW_STATE_PARAM;
             String firstViewStateKey = reqParamMap.keySet().stream()
-                    .filter(item -> item.contains(ResponseStateManager.VIEW_STATE_PARAM))
+                    .filter(item -> item.contains(filterKey))
                     .findFirst().orElse("");
             if(firstViewStateKey.length() > 0)
             {
-                char sep = facesContext.getNamingContainerSeparatorChar();
                 return firstViewStateKey.split(String.valueOf(sep))[0] + sep;
             }
             return firstViewStateKey;
